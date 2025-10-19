@@ -77,13 +77,11 @@ export class TableRenderer {
             }
         }
         
-        // Also toggle predicted points and standings columns
+        // Also toggle predicted points column
         if (anyFutureVisible) {
             this.collapsedColumns.add('predicted-points');
-            this.collapsedColumns.add('predicted-standing');
         } else {
             this.collapsedColumns.delete('predicted-points');
-            this.collapsedColumns.delete('predicted-standing');
         }
         
         return anyFutureVisible; // Returns true if we just collapsed them

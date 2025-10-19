@@ -61,11 +61,13 @@ export class PointsCalculator {
             const hasSprint = race.Sprint !== undefined;
 
             // Add sprint points if applicable
-            if (hasSprint && !collapsedColumns.has(`sprint-${round}`)) {
+            if (hasSprint) {
                 const sprintResult = this.getDriverSprintResult(driverId, round, sprintResults);
                 if (sprintResult) {
+                    // Always include actual sprint results
                     totalPoints += sprintResult.points;
-                } else {
+                } else if (!collapsedColumns.has(`sprint-${round}`)) {
+                    // Only include predictions for non-collapsed future sprints
                     const predictedPos = getPredictedPosition(driverId, round, true);
                     // Only add points if position is valid (not 0/null)
                     if (predictedPos > 0) {
@@ -75,16 +77,16 @@ export class PointsCalculator {
             }
 
             // Add race points
-            if (!collapsedColumns.has(`race-${round}`)) {
-                const raceResult = this.getDriverRaceResult(driverId, round, raceResults);
-                if (raceResult) {
-                    totalPoints += raceResult.points;
-                } else {
-                    const predictedPos = getPredictedPosition(driverId, round, false);
-                    // Only add points if position is valid (not 0/null)
-                    if (predictedPos > 0) {
-                        totalPoints += this.getRacePoints(predictedPos);
-                    }
+            const raceResult = this.getDriverRaceResult(driverId, round, raceResults);
+            if (raceResult) {
+                // Always include actual race results (even if column is collapsed)
+                totalPoints += raceResult.points;
+            } else if (!collapsedColumns.has(`race-${round}`)) {
+                // Only include predictions for non-collapsed future races
+                const predictedPos = getPredictedPosition(driverId, round, false);
+                // Only add points if position is valid (not 0/null)
+                if (predictedPos > 0) {
+                    totalPoints += this.getRacePoints(predictedPos);
                 }
             }
         }
