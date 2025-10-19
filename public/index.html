@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Driver Standings Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏎️ F1 Driver Standings Tracker</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: #FFD700;"></div>
+                <span>1st Place</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #C0C0C0;"></div>
+                <span>2nd Place</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #CD7F32;"></div>
+                <span>3rd Place</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: rgba(0, 255, 0, 0.2);"></div>
+                <span>Points Finish</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="refresh-btn">🔄 Refresh Data</button>
+            <button class="btn secondary" id="reset-btn">↺ Reset Predictions</button>
+            <button class="btn secondary toggle-btn" id="toggle-past-btn" data-active="false">⊟ Hide Past Races</button>
+            <button class="btn secondary toggle-btn" id="toggle-future-btn" data-active="false">⊟ Hide Future Races</button>
+        </div>
+
+        <div id="content">
+            <div class="loading">Loading F1 data...</div>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
