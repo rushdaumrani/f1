@@ -139,15 +139,35 @@ class F1StandingsApp {
         // Convert '0' to null for no prediction
         const pos = position === '0' || position === 0 ? null : parseInt(position);
         
-        // Check for duplicate and swap if needed
-        if (pos && pos > 0) {
-            const predictions = this.predictionManager.userPredictions[round] || {};
-            for (const [otherDriverId, otherPos] of Object.entries(predictions)) {
-                if (otherDriverId !== driverId && parseInt(otherPos) === pos) {
-                    // Swap: give the other driver this driver's old position
-                    const oldPos = predictions[driverId];
-                    this.predictionManager.updatePrediction(otherDriverId, round, oldPos);
-                    break;
+        // Get current position of this driver (before change)
+        const currentPos = this.predictionManager.getPredictedPosition(
+            driverId, 
+            round, 
+            false, 
+            this.qualifyingResults, 
+            this.sprintQualifyingResults, 
+            this.driversData
+        );
+        
+        // Check for duplicate and swap if needed (only if position is actually changing)
+        if (pos && pos > 0 && pos !== currentPos) {
+            // Find if another driver has the target position
+            for (const driver of this.driversData) {
+                if (driver.driverId !== driverId) {
+                    const otherPos = this.predictionManager.getPredictedPosition(
+                        driver.driverId,
+                        round,
+                        false,
+                        this.qualifyingResults,
+                        this.sprintQualifyingResults,
+                        this.driversData
+                    );
+                    
+                    if (otherPos === pos) {
+                        // Swap: give the other driver this driver's current position
+                        this.predictionManager.updatePrediction(driver.driverId, round, currentPos);
+                        break;
+                    }
                 }
             }
         }
@@ -163,15 +183,35 @@ class F1StandingsApp {
         // Convert '0' to null for no prediction
         const pos = position === '0' || position === 0 ? null : parseInt(position);
         
-        // Check for duplicate and swap if needed
-        if (pos && pos > 0) {
-            const predictions = this.predictionManager.sprintPredictions[round] || {};
-            for (const [otherDriverId, otherPos] of Object.entries(predictions)) {
-                if (otherDriverId !== driverId && parseInt(otherPos) === pos) {
-                    // Swap: give the other driver this driver's old position
-                    const oldPos = predictions[driverId];
-                    this.predictionManager.updateSprintPrediction(otherDriverId, round, oldPos);
-                    break;
+        // Get current position of this driver (before change)
+        const currentPos = this.predictionManager.getPredictedPosition(
+            driverId, 
+            round, 
+            true, 
+            this.qualifyingResults, 
+            this.sprintQualifyingResults, 
+            this.driversData
+        );
+        
+        // Check for duplicate and swap if needed (only if position is actually changing)
+        if (pos && pos > 0 && pos !== currentPos) {
+            // Find if another driver has the target position
+            for (const driver of this.driversData) {
+                if (driver.driverId !== driverId) {
+                    const otherPos = this.predictionManager.getPredictedPosition(
+                        driver.driverId,
+                        round,
+                        true,
+                        this.qualifyingResults,
+                        this.sprintQualifyingResults,
+                        this.driversData
+                    );
+                    
+                    if (otherPos === pos) {
+                        // Swap: give the other driver this driver's current position
+                        this.predictionManager.updateSprintPrediction(driver.driverId, round, currentPos);
+                        break;
+                    }
                 }
             }
         }

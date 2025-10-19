@@ -141,7 +141,7 @@ export class TableRenderer {
     /**
      * Generate position dropdown options
      * @param {number|null} selectedPos - Currently selected position
-     * @param {Array} usedPositions - Array of positions already used by other drivers
+     * @param {Array} usedPositions - Array of positions already used by other drivers (ignored for swapping)
      * @returns {string} - HTML options string
      */
     generatePositionOptions(selectedPos, usedPositions = []) {
@@ -151,10 +151,10 @@ export class TableRenderer {
         const nullSelected = (selectedPos === null || selectedPos === 0) ? 'selected' : '';
         options += `<option value="0" ${nullSelected}>-</option>`;
         
+        // All positions are selectable - swapping is handled in app.js
         for (let i = 1; i <= 20; i++) {
             const selected = i === selectedPos ? 'selected' : '';
-            const disabled = usedPositions.includes(i) && i !== selectedPos ? 'disabled' : '';
-            options += `<option value="${i}" ${selected} ${disabled}>${i}</option>`;
+            options += `<option value="${i}" ${selected}>${i}</option>`;
         }
         return options;
     }
@@ -278,29 +278,22 @@ export class TableRenderer {
         const gapLeaderCollapsed = this.collapsedColumns.has('gap-leader') ? 'collapsed' : '';
         const gapAheadCollapsed = this.collapsedColumns.has('gap-ahead') ? 'collapsed' : '';
         const predictedPointsCollapsed = this.collapsedColumns.has('predicted-points') ? 'collapsed' : '';
-        const predictedStandingCollapsed = this.collapsedColumns.has('predicted-standing') ? 'collapsed' : '';
 
         html += `<th class="collapsible ${gapLeaderCollapsed}" onclick="window.app.toggleColumn('gap-leader')">Gap to Leader</th>`;
         html += `<th class="collapsible ${gapAheadCollapsed}" onclick="window.app.toggleColumn('gap-ahead')">Gap to Ahead</th>`;
         
-        // Show predicted columns here if not collapsed
+        // Show predicted points column if not collapsed
         if (!this.collapsedColumns.has('predicted-points')) {
             html += `<th class="points-cell collapsible" onclick="window.app.toggleColumn('predicted-points')">Predicted Points</th>`;
-        }
-        if (!this.collapsedColumns.has('predicted-standing')) {
-            html += `<th class="points-cell collapsible" onclick="window.app.toggleColumn('predicted-standing')">Predicted Standing</th>`;
         }
         
         html += '<th class="points-cell">Current Points</th>';
         
         // Render collapsed columns at the very end
         
-        // Add collapsed predicted columns first
+        // Add collapsed predicted points column if needed
         if (this.collapsedColumns.has('predicted-points')) {
             html += `<th class="points-cell collapsible collapsed" onclick="window.app.toggleColumn('predicted-points')">Predicted Points ⊟</th>`;
-        }
-        if (this.collapsedColumns.has('predicted-standing')) {
-            html += `<th class="points-cell collapsible collapsed" onclick="window.app.toggleColumn('predicted-standing')">Predicted Standing ⊟</th>`;
         }
         
         // Then collapsed race columns
@@ -373,12 +366,9 @@ export class TableRenderer {
             const gapAheadCollapsed = this.collapsedColumns.has('gap-ahead') ? 'collapsed' : '';
             html += `<td class="gap-cell ${gapAheadCollapsed}">${gapToAhead > 0 ? '-' + gapToAhead : '-'}</td>`;
 
-            // Show predicted columns here if not collapsed
+            // Show predicted points if not collapsed
             if (!this.collapsedColumns.has('predicted-points')) {
                 html += `<td class="points-cell">${driver.calculatedPoints}</td>`;
-            }
-            if (!this.collapsedColumns.has('predicted-standing')) {
-                html += `<td class="points-cell">${currentPos}</td>`;
             }
             
             // Current points (actual points from API)
@@ -386,12 +376,9 @@ export class TableRenderer {
             
             // Render collapsed columns at the very end
             
-            // Add collapsed predicted columns first
+            // Add collapsed predicted points if needed
             if (this.collapsedColumns.has('predicted-points')) {
                 html += `<td class="points-cell collapsed">${driver.calculatedPoints}</td>`;
-            }
-            if (this.collapsedColumns.has('predicted-standing')) {
-                html += `<td class="points-cell collapsed">${currentPos}</td>`;
             }
             
             // Then collapsed race columns
@@ -431,7 +418,22 @@ export class TableRenderer {
             // Past sprint - check if driver participated
             if (sprintResult && sprintResult.isActual) {
                 const pos = sprintResult.position;
-                const posClass = pos === 1 ? 'result-1' : pos === 2 ? 'result-2' : pos === 3 ? 'result-3' : pos <= 8 ? 'result-points' : '';
+                let posClass = '';
+                
+                if (pos === 0) {
+                    // DNF - no styling
+                    posClass = 'dnf';
+                } else if (pos === 1) {
+                    posClass = 'result-1';
+                } else if (pos === 2) {
+                    posClass = 'result-2';
+                } else if (pos === 3) {
+                    posClass = 'result-3';
+                } else if (pos > 0 && pos <= 8) {
+                    posClass = 'result-points';
+                }
+                // Positions 9-20 get no special class
+                
                 return `<td class="sprint-race ${posClass} ${collapsedClass}">${pos > 0 ? pos : 'DNF'}</td>`;
             } else {
                 // Driver didn't participate in this sprint
@@ -480,7 +482,22 @@ export class TableRenderer {
             // Past race - check if driver participated
             if (raceResult && raceResult.isActual) {
                 const pos = raceResult.position;
-                const posClass = pos === 1 ? 'result-1' : pos === 2 ? 'result-2' : pos === 3 ? 'result-3' : pos <= 10 ? 'result-points' : '';
+                let posClass = '';
+                
+                if (pos === 0) {
+                    // DNF - no styling
+                    posClass = 'dnf';
+                } else if (pos === 1) {
+                    posClass = 'result-1';
+                } else if (pos === 2) {
+                    posClass = 'result-2';
+                } else if (pos === 3) {
+                    posClass = 'result-3';
+                } else if (pos > 0 && pos <= 10) {
+                    posClass = 'result-points';
+                }
+                // Positions 11-20 get no special class
+                
                 return `<td class="${posClass} ${collapsedClass}">${pos > 0 ? pos : 'DNF'}</td>`;
             } else {
                 // Driver didn't participate in this race

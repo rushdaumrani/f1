@@ -168,6 +168,12 @@ tr:hover {
 .result-3 { background: #CD7F32; color: #000; font-weight: bold; }
 .result-points { background: rgba(0, 255, 0, 0.2); }
 
+/* DNF styling */
+.dnf {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
 select {
     width: 60px;
     padding: 5px;
